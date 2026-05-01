@@ -1,0 +1,52 @@
+default_stages:
+  - "pre-commit"
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-merge-conflict
+
+      - id: check-case-conflict
+
+      - id: check-symlinks
+
+      - id: end-of-file-fixer
+        exclude: >
+          (?x)(
+            \.npmrc$
+          )
+
+      - id: trailing-whitespace
+
+      - id: check-ast
+
+      - id: debug-statements
+
+      - id: check-yaml
+        args:
+          - --allow-multiple-documents
+
+      - id: detect-private-key
+
+  - repo: local
+    hooks:
+      - id: frontend
+        name: eslint-and-prettier
+        language: system
+        entry: bash -lc 'cd frontend && pnpm run lintfix'
+        files: ^frontend/
+        types_or: [javascript, ts, vue, json]
+        exclude: >
+          (?x)(
+            /node_modules/
+            | /dist/
+            | /build/
+            | \.min\.js$
+            | /coverage/
+            | yarn\.lock$
+            | package-lock\.json$
+            | /\.yarn/
+            | \.npmrc$
+          )
+        require_serial: true
