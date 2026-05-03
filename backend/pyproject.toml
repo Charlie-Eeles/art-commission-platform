@@ -1,0 +1,10 @@
+[project]
+name = "ACP"
+version = "0.1.0"
+description = "API for the Art Commission Platform"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi[standard]>=0.136.0",
+    "psycopg>=3.3.3",
+    "sqlalchemy>=2.0.49",
+]
