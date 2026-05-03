@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-18-data:/var/lib/postgresql-18/data
+    env_file:
+      - .env
+    command: ["postgres", "-c", "log_statement=all"]
+
+volumes:
+  postgres-18-data:

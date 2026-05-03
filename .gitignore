@@ -2,4 +2,8 @@
 /notes/.obsidian/appearance.json
 /notes/.obsidian/app.json
 /notes/.obsidian/core-plugins.json
-/.DS_Store
+
+.DS_Store
+__pycache__
+.pytest_cache
+.env
