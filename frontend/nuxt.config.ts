@@ -1,9 +1,11 @@
+import Aura from "@primeuix/themes/aura";
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
 
-  modules: ["@nuxt/eslint", "@nuxt/ui"],
+  modules: ["@nuxt/eslint", "@nuxt/ui", "@nuxt/icon", "@primevue/nuxt-module"],
 
   ssr: false,
   experimental: {
@@ -18,4 +20,19 @@ export default defineNuxtConfig({
       pathPrefix: false,
     },
   ],
+
+  primevue: {
+    options: {
+      theme: {
+        preset: Aura,
+      },
+    },
+  },
+
+  runtimeConfig: {
+    public: {
+      logtoEndpoint: process.env.NUXT_PUBLIC_LOGTO_ENDPOINT || "",
+      logtoAppId: process.env.NUXT_PUBLIC_LOGTO_APP_ID || "",
+    },
+  },
 });

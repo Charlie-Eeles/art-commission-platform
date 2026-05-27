@@ -11,6 +11,8 @@
     "lintfix": "eslint . --fix && prettier --write --list-different ."
   },
   "dependencies": {
+    "@nuxt/icon": "2.2.2",
+    "@logto/vue": "^3.0.13",
     "@nuxt/eslint": "1.15.2",
     "@nuxt/ui": "4.6.1",
     "@typescript-eslint/parser": "^8.58.2",
@@ -19,6 +21,12 @@
     "tailwindcss": "^4.2.2",
     "vue": "^3.5.32",
     "vue-eslint-parser": "^10.4.0",
-    "vue-router": "^5.0.4"
+    "vue-router": "^5.0.4",
+    "@primevue/nuxt-module": "^4.5.5",
+    "primevue": "^4.5.5",
+    "@primeuix/themes": "^2.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1"
   }
 }
