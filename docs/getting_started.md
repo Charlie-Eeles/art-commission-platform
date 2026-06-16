@@ -4,12 +4,16 @@
 The frontend is a Nuxt app using pnpm as its package manager.
 
 Follow these steps to run the frontend locally:
-- Create a `.env` file at `./frontend/.env` and populate it with the following properties. (None of these values are sensitive)
+- Create a `.env` file at `./frontend/.env` and populate it with the following properties (None of these values are sensitive):
 
 ```env
+# API
+NUXT_PUBLIC_API_BASE_URL=http://localhost:8000
+
 # LogTo (Auth)
 NUXT_PUBLIC_LOGTO_ENDPOINT="https://bph6vd.logto.app/"
 NUXT_PUBLIC_LOGTO_APP_ID="l36zyeqf0hgj7bctcpm4j"
+NUXT_PUBLIC_LOGTO_API_RESOURCE=https://api.art-commission-platform.com
 ```
 
 - Navigate to the frontend dir at `./frontend`
@@ -21,7 +25,7 @@ NUXT_PUBLIC_LOGTO_APP_ID="l36zyeqf0hgj7bctcpm4j"
 The backend is a Fastapi app using a Postgres database.
 
 Follow these steps to run the backend locally:
-- Create a `.env` file at `./backend/.env` and populate it with the following properties:
+- Create a `.env` file at `./backend/.env` and populate it with the following properties (None of these are sensitive):
 
 ```env
 # Fastapi
@@ -37,6 +41,10 @@ DATABASE_URL="postgresql://local:password@localhost:5432/art_commission_platform
 
 # AWS
 ORGANISATION_IMAGES_BUCKET=portfolio-images
+
+# LogTo
+LOGTO_ENDPOINT=https://bph6vd.logto.app
+LOGTO_API_RESOURCE=https://api.art-commission-platform.com
 ```
 
 - Start the database with docker `docker compose up -d`

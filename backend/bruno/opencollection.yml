@@ -2,6 +2,47 @@ opencollection: 1.0.0
 
 info:
   name: ACP
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  auth:
+    type: oauth2
+    flow: authorization_code
+    authorizationUrl: https://bph6vd.logto.app/oidc/auth
+    accessTokenUrl: https://bph6vd.logto.app/oidc/token
+    callbackUrl: http://localhost:3000/auth/callback
+    credentials:
+      clientId: l36zyeqf0hgj7bctcpm4j
+      placement: body
+    additionalParameters:
+      authorizationRequest:
+        - name: resource
+          placement: query
+          value: https://api.art-commission-platform.com
+      accessTokenRequest:
+        - name: resource
+          placement: body
+          value: https://api.art-commission-platform.com
+    scope: openid profile email
+    pkce: {}
+    tokenConfig:
+      id: credentials
+      placement:
+        header: Bearer
+      source: access_token
+    settings:
+      autoFetchToken: false
+      autoRefreshToken: false
 bundled: false
 extensions:
   bruno:

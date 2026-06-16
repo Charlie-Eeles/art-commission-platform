@@ -40,6 +40,8 @@ export default defineNuxtConfig({
     public: {
       logtoEndpoint: process.env.NUXT_PUBLIC_LOGTO_ENDPOINT || "",
       logtoAppId: process.env.NUXT_PUBLIC_LOGTO_APP_ID || "",
+      logtoApiResource: process.env.NUXT_PUBLIC_LOGTO_API_RESOURCE || "",
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || "",
     },
   },
 });

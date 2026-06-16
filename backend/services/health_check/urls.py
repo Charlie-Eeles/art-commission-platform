@@ -1,6 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from database import DbSession
 
+from middleware.auth import get_current_user
 from sqlalchemy import text
 
 router = APIRouter()
