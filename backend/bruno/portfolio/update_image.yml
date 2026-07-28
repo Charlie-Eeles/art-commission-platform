@@ -1,0 +1,15 @@
+info:
+  name: update_image
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: "{{base_url}}/portfolio/images/bebc2ade-1659-4695-92ee-29376a4b9978"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
