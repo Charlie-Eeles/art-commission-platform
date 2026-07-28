@@ -72,7 +72,7 @@ const menuItems = computed<MenuItem[]>(() => {
     },
     {
       label: "Your portfolio",
-      to: "/portfolio/1",
+      to: "/portfolio/your-portfolio",
       icon: "material-symbols:palette-outline",
     },
     {
