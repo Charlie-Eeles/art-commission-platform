@@ -167,6 +167,8 @@
 </template>
 
 <script setup lang="ts">
+import { useLogto } from "@logto/vue";
+
 type PortfolioImage = {
   id: string;
   art_name: string;
@@ -175,6 +177,7 @@ type PortfolioImage = {
 
 const MAX_UPLOADS = 6;
 const acpFetch = useAcpFetch();
+const { isAuthenticated } = useLogto();
 
 const images = ref<PortfolioImage[]>([]);
 const newArtName = ref("");
@@ -184,6 +187,8 @@ const editingId = ref<string>();
 const editArtName = ref("");
 
 onMounted(async () => {
+  if (!isAuthenticated.value) await navigateTo("/");
+
   images.value =
     ((await acpFetch("/portfolio/images")) as PortfolioImage[]) ?? [];
 });

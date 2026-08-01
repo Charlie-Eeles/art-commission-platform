@@ -70,11 +70,17 @@ const menuItems = computed<MenuItem[]>(() => {
       to: "/explore",
       icon: "material-symbols:explore-outline",
     },
-    {
-      label: "Your portfolio",
-      to: "/portfolio/your-portfolio",
-      icon: "material-symbols:palette-outline",
-    },
+
+    ...(isAuthenticated.value
+      ? [
+          {
+            label: "Your portfolio",
+            to: "/portfolio/your-portfolio",
+            icon: "material-symbols:palette-outline",
+          },
+        ]
+      : []),
+
     {
       label: "Account",
       icon: "material-symbols:account-circle-outline",
