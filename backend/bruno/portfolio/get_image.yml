@@ -4,7 +4,7 @@ info:
   seq: 2
 
 http:
-  method: PATCH
+  method: GET
   url: "{{base_url}}/portfolio/images/bebc2ade-1659-4695-92ee-29376a4b9978"
   body:
     type: json

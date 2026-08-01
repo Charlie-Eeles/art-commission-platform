@@ -43,7 +43,7 @@ def create_image_qf(db: DbSession, art_name: str, image_url: str, upload_id: UUI
     db.commit()
     return row
 
-def get_user_portfolio_images_qf(db: DbSession, user_id: UUID):
+def get_user_images_qf(db: DbSession, user_id: UUID):
     res = db.execute(
         text(
             """
@@ -137,6 +137,79 @@ def delete_image_qf(db: DbSession, image_id: UUID, user_id: UUID):
             "image_id": image_id,
             "user_id": user_id,
         },
+    )
+
+    return res.mappings().one_or_none()
+
+def save_portfolio_settings_qf(
+    db: DbSession,
+    description: str,
+    is_public: bool,
+    commission_slots: int,
+    user_id: UUID,
+):
+    res = db.execute(
+        text(
+            """
+            --sql
+            INSERT INTO art.portfolio_settings (
+                description,
+                is_public,
+                commission_slots,
+                user_id
+            )
+            VALUES (
+                :description,
+                :is_public,
+                :commission_slots,
+                :user_id
+            )
+            ON CONFLICT (user_id) DO UPDATE
+            SET
+                description = EXCLUDED.description,
+                is_public = EXCLUDED.is_public,
+                commission_slots = EXCLUDED.commission_slots,
+                updated_at = NOW()
+            RETURNING
+                id,
+                description,
+                is_public,
+                commission_slots,
+                user_id,
+                created_at,
+                updated_at;
+            """
+        ),
+        {
+            "description": description,
+            "is_public": is_public,
+            "commission_slots": commission_slots,
+            "user_id": user_id,
+        },
+    )
+
+    row = res.mappings().one()
+    db.commit()
+    return row
+
+def get_portfolio_settings_qf(db: DbSession, user_id: UUID):
+    res = db.execute(
+        text(
+            """
+            --sql
+            SELECT
+                id,
+                description,
+                is_public,
+                commission_slots,
+                user_id,
+                created_at,
+                updated_at
+            FROM art.portfolio_settings
+            WHERE user_id = :user_id;
+            """
+        ),
+        {"user_id": user_id},
     )
 
     return res.mappings().one_or_none()

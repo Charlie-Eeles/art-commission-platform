@@ -4,9 +4,8 @@ import uuid
 import boto3
 from botocore.client import Config
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-from services.portfolio.models import PortfolioImage, UpdatePortfolioImageRequest
-from services.portfolio.query_functions import create_image_qf, delete_image_qf, get_image_by_id_qf, get_user_portfolio_images_qf, update_image_qf
-from sqlalchemy import text
+from services.portfolio.models import PortfolioImage, PortfolioSettings, PortfolioSettingsRequest, UpdatePortfolioImageRequest
+from services.portfolio.query_functions import create_image_qf, delete_image_qf, get_image_by_id_qf, get_portfolio_settings_qf, get_user_images_qf, update_image_qf, save_portfolio_settings_qf
 
 from database import DbSession
 from middleware.auth import get_current_user
@@ -68,11 +67,11 @@ async def upload_image(
 
 
 @router.get("/images", response_model=list[PortfolioImage])
-def get_user_portfolio_images(
+def get_user_images(
     db: DbSession,
     current_user=Depends(get_current_user),
 ):
-    return get_user_portfolio_images_qf(db=db, user_id=current_user.id)
+    return get_user_images_qf(db=db, user_id=current_user.id)
 
 
 @router.get("/images/{image_id}", response_model=PortfolioImage)
@@ -140,3 +139,38 @@ def delete_image(
         pass
 
     return None
+
+@router.put("/settings", response_model=PortfolioSettings)
+def save_portfolio_settings(
+    payload: PortfolioSettingsRequest,
+    db: DbSession,
+    current_user=Depends(get_current_user),
+):
+    res = save_portfolio_settings_qf(
+        db=db,
+        user_id=current_user.id,
+        description=payload.description,
+        is_public=payload.is_public,
+        commission_slots=payload.commission_slots
+    )
+    db.commit()
+
+    return res
+
+@router.get("/settings", response_model=PortfolioSettings)
+def get_portfolio_settings(
+    db: DbSession,
+    current_user=Depends(get_current_user),
+):
+    settings = get_portfolio_settings_qf(db=db, user_id=current_user.id)
+
+    if settings is None:
+        settings = save_portfolio_settings_qf(
+            db=db,
+            user_id=current_user.id,
+            description="",
+            is_public=False,
+            commission_slots=3
+        )
+
+    return settings

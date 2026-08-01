@@ -1,11 +1,11 @@
 info:
-  name: update_image
+  name: get_portfolio_settings
   type: http
-  seq: 4
+  seq: 5
 
 http:
-  method: PATCH
-  url: "{{base_url}}/portfolio/images/bebc2ade-1659-4695-92ee-29376a4b9978"
+  method: GET
+  url: "{{base_url}}/portfolio/settings"
   auth: inherit
 
 settings:

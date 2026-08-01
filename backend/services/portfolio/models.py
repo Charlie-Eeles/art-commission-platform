@@ -15,3 +15,14 @@ class PortfolioImage(BaseModel):
 
 class UpdatePortfolioImageRequest(BaseModel):
     art_name: str
+
+class PortfolioSettingsRequest(BaseModel):
+    description: str
+    is_public: bool
+    commission_slots: int
+
+class PortfolioSettings(PortfolioSettingsRequest):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
