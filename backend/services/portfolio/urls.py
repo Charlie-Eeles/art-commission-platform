@@ -29,11 +29,15 @@ def _get_s3_client():
     )
 
 
-@router.post("/images", response_model=PortfolioImage, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/images",
+    response_model=PortfolioImage,
+    status_code=status.HTTP_201_CREATED,
+)
 async def upload_image(
     db: DbSession,
     current_user=Depends(get_current_user),
-    art_name: str = Form(...),
+    art_name: str = Form(..., alias="artName"),
     image: UploadFile = File(...),
 ):
     if not image.content_type or not image.content_type.startswith("image/"):
@@ -43,13 +47,15 @@ async def upload_image(
         )
 
     upload_id = uuid.uuid4()
-    file_ext = image.filename.rsplit(".", 1)[-1].lower() if image.filename and "." in image.filename else "bin"
+    file_ext = (
+        image.filename.rsplit(".", 1)[-1].lower()
+        if image.filename and "." in image.filename
+        else "bin"
+    )
     object_key = f"portfolio/{current_user.id}/{upload_id}.{file_ext}"
 
-    s3 = _get_s3_client()
-
     try:
-        s3.upload_fileobj(
+        _get_s3_client().upload_fileobj(
             image.file,
             S3_BUCKET,
             object_key,
@@ -63,7 +69,13 @@ async def upload_image(
 
     image_url = f"{S3_PUBLIC_BASE_URL}/{object_key}"
 
-    return create_image_qf(db=db, art_name=art_name, image_url=image_url, upload_id=upload_id, user_id=current_user.id)
+    return create_image_qf(
+        db=db,
+        art_name=art_name,
+        image_url=image_url,
+        upload_id=upload_id,
+        user_id=current_user.id,
+    )
 
 
 @router.get("/images", response_model=list[PortfolioImage])

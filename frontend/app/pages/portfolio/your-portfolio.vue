@@ -6,7 +6,75 @@
     </header>
 
     <Card class="mb-8">
-      <template #title> Add artwork </template>
+      <template #title>Portfolio settings</template>
+
+      <template #content>
+        <form class="flex flex-col gap-4" @submit.prevent="saveSettings">
+          <div class="flex flex-col gap-2">
+            <label for="portfolio-description" class="text-sm font-medium">
+              Description
+            </label>
+            <Textarea
+              id="portfolio-description"
+              v-model="settings.description"
+              rows="4"
+              auto-resize
+              placeholder="Tell visitors about your work"
+              :disabled="settingsLoading"
+              fluid
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label for="commission-slots" class="text-sm font-medium">
+              Commission slots
+            </label>
+            <InputNumber
+              v-model="settings.commissionSlots"
+              input-id="commission-slots"
+              :min="0"
+              :disabled="settingsLoading"
+              fluid
+            />
+          </div>
+
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <label for="portfolio-public" class="font-medium">
+                Publish portfolio
+              </label>
+              <p class="text-sm text-gray-500">
+                Make your portfolio visible to other users.
+              </p>
+            </div>
+
+            <ToggleSwitch
+              v-model="settings.isPublic"
+              input-id="portfolio-public"
+              :disabled="settingsLoading"
+            />
+          </div>
+
+          <div>
+            <Button
+              type="submit"
+              :label="
+                settings.isPublic ? 'Save and publish' : 'Save as private'
+              "
+              :loading="settingsSaving"
+              :disabled="settingsLoading"
+            >
+              <template #icon>
+                <Icon name="material-symbols:save-outline" class="size-4" />
+              </template>
+            </Button>
+          </div>
+        </form>
+      </template>
+    </Card>
+
+    <Card class="mb-8">
+      <template #title>Add artwork</template>
 
       <template #content>
         <form
@@ -74,8 +142,8 @@
       >
         <template #header>
           <img
-            :src="image.image_url"
-            :alt="image.art_name"
+            :src="image.imageUrl"
+            :alt="image.artName"
             class="aspect-square w-full object-cover"
           />
         </template>
@@ -114,7 +182,7 @@
 
             <div v-else class="flex items-center justify-between gap-4">
               <h2 class="min-w-0 truncate font-medium">
-                {{ image.art_name }}
+                {{ image.artName }}
               </h2>
 
               <div class="flex shrink-0 gap-2">
@@ -126,7 +194,7 @@
                   aria-label="Rename image"
                   @click="
                     editingId = image.id;
-                    editArtName = image.art_name;
+                    editArtName = image.artName;
                   "
                 >
                   <Icon name="material-symbols:edit-outline" class="size-4" />
@@ -171,8 +239,18 @@ import { useLogto } from "@logto/vue";
 
 type PortfolioImage = {
   id: string;
-  art_name: string;
-  image_url: string;
+  artName: string;
+  imageUrl: string;
+};
+
+type PortfolioSettings = {
+  id: string;
+  userId: string;
+  description: string;
+  isPublic: boolean;
+  commissionSlots: number;
+  createdAt: string;
+  updatedAt: string;
 };
 
 const MAX_UPLOADS = 6;
@@ -180,6 +258,13 @@ const acpFetch = useAcpFetch();
 const { isAuthenticated } = useLogto();
 
 const images = ref<PortfolioImage[]>([]);
+const settings = reactive({
+  description: "",
+  isPublic: false,
+  commissionSlots: 3,
+});
+const settingsLoading = ref(true);
+const settingsSaving = ref(false);
 const newArtName = ref("");
 const selectedFile = ref<File>();
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -187,11 +272,43 @@ const editingId = ref<string>();
 const editArtName = ref("");
 
 onMounted(async () => {
-  if (!isAuthenticated.value) await navigateTo("/");
+  if (!isAuthenticated.value) {
+    await navigateTo("/");
+    return;
+  }
 
-  images.value =
-    ((await acpFetch("/portfolio/images")) as PortfolioImage[]) ?? [];
+  try {
+    const [portfolioImages, portfolioSettings] = await Promise.all([
+      acpFetch("/portfolio/images") as Promise<PortfolioImage[]>,
+      acpFetch("/portfolio/settings") as Promise<PortfolioSettings>,
+    ]);
+
+    images.value = portfolioImages ?? [];
+    settings.description = portfolioSettings.description;
+    settings.isPublic = portfolioSettings.isPublic;
+    settings.commissionSlots = portfolioSettings.commissionSlots;
+  } finally {
+    settingsLoading.value = false;
+  }
 });
+
+async function saveSettings() {
+  settingsSaving.value = true;
+
+  try {
+    const updated = (await acpFetch("/portfolio/settings", HTTPMethods.PUT, {
+      description: settings.description,
+      isPublic: settings.isPublic,
+      commissionSlots: settings.commissionSlots,
+    })) as PortfolioSettings;
+
+    settings.description = updated.description;
+    settings.isPublic = updated.isPublic;
+    settings.commissionSlots = updated.commissionSlots;
+  } finally {
+    settingsSaving.value = false;
+  }
+}
 
 function handleFileChange(event: Event) {
   selectedFile.value = (event.target as HTMLInputElement).files?.[0];
@@ -207,7 +324,7 @@ async function uploadImage() {
   }
 
   const body = new FormData();
-  body.append("art_name", newArtName.value.trim());
+  body.append("artName", newArtName.value.trim());
   body.append("image", selectedFile.value);
 
   const image = (await acpFetch(
@@ -229,7 +346,7 @@ async function updateImage(image: PortfolioImage) {
   const updated = (await acpFetch(
     `/portfolio/images/${image.id}`,
     HTTPMethods.PATCH,
-    { art_name: editArtName.value },
+    { artName: editArtName.value },
   )) as PortfolioImage;
 
   Object.assign(image, updated);
@@ -237,7 +354,7 @@ async function updateImage(image: PortfolioImage) {
 }
 
 async function deleteImage(image: PortfolioImage) {
-  if (!confirm(`Delete "${image.art_name}"?`)) return;
+  if (!confirm(`Delete "${image.artName}"?`)) return;
 
   await acpFetch(`/portfolio/images/${image.id}`, HTTPMethods.DELETE);
 
