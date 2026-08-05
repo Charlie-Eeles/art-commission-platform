@@ -7,6 +7,7 @@ def get_user(auth_sub: str, db: DbSession):
     with db.begin():
         return db.execute(
             text("""
+            --sql
             SELECT
                 u.id,
                 u.email,
@@ -26,6 +27,7 @@ def create_new_user(auth_sub: str, email: str, db: DbSession):
     with db.begin():
         return db.execute(
             text("""
+            --sql
             INSERT INTO
                 accounts.users (
                     auth_sub,
