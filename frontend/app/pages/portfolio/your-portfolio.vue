@@ -237,22 +237,6 @@
 <script setup lang="ts">
 import { useLogto } from "@logto/vue";
 
-type PortfolioImage = {
-  id: string;
-  artName: string;
-  imageUrl: string;
-};
-
-type PortfolioSettings = {
-  id: string;
-  userId: string;
-  description: string;
-  isPublic: boolean;
-  commissionSlots: number;
-  createdAt: string;
-  updatedAt: string;
-};
-
 const MAX_UPLOADS = 6;
 const acpFetch = useAcpFetch();
 const { isAuthenticated } = useLogto();

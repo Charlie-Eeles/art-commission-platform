@@ -53,14 +53,6 @@
 <script setup lang="ts">
 import { useLogto } from "@logto/vue";
 
-type MenuItem = {
-  label?: string;
-  to?: string;
-  icon?: string;
-  items?: MenuItem[];
-  command?: () => void;
-};
-
 const { signIn, signOut, isAuthenticated } = useLogto();
 
 const menuItems = computed<MenuItem[]>(() => {

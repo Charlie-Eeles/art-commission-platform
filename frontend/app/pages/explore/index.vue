@@ -92,34 +92,6 @@
 </template>
 
 <script setup lang="ts">
-type PortfolioImage = {
-  id: string;
-  artName: string;
-  imageUrl: string;
-  uploadId: string;
-  userId: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
-type PublicPortfolio = {
-  id: string;
-  userId: string;
-  description: string;
-  commissionSlots: number;
-  createdAt: string;
-  updatedAt: string;
-  images: PortfolioImage[];
-};
-
-type PublicPortfolioPage = {
-  items: PublicPortfolio[];
-  page: number;
-  pageSize: number;
-  total: number;
-  hasNext: boolean;
-};
-
 const PAGE_SIZE = 20;
 const acpFetch = useAcpFetch();
 
