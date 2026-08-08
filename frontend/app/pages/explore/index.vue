@@ -1,12 +1,5 @@
 <template>
-  <main class="mx-auto max-w-5xl px-4 py-8">
-    <header class="mb-8">
-      <h1 class="text-3xl font-semibold">Explore portfolios</h1>
-      <p class="mt-2 text-gray-500">
-        Discover artists available for commissions.
-      </p>
-    </header>
-
+  <div>
     <div v-if="loading" class="py-12 text-center">Loading portfolios...</div>
 
     <Card v-else-if="loadError">
@@ -26,7 +19,9 @@
             name="material-symbols:imagesmode-outline"
             class="mb-3 size-10 text-gray-400"
           />
+
           <h2 class="font-medium">No public portfolios found</h2>
+
           <p class="mt-1 text-sm text-gray-500">
             Published portfolios will appear here.
           </p>
@@ -34,8 +29,8 @@
       </template>
     </Card>
 
-    <div v-else class="space-y-8">
-      <Card v-for="portfolio in portfolios" :key="portfolio.id">
+    <div v-else class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <Card v-for="portfolio in portfolios" :key="portfolio.id" class="min-w-0">
         <template #title>
           {{ portfolio.description || "Untitled portfolio" }}
         </template>
@@ -45,14 +40,16 @@
         </template>
 
         <template #content>
-          <PortfolioCarousel
-            v-if="portfolio.images.length"
-            :images="portfolio.images.map(toCarouselImage)"
-          />
+          <div class="min-w-0 overflow-hidden">
+            <PortfolioCarousel
+              v-if="portfolio.images.length"
+              :images="portfolio.images.map(toCarouselImage)"
+            />
 
-          <p v-else class="py-12 text-center text-gray-500">
-            This portfolio has no images.
-          </p>
+            <p v-else class="py-12 text-center text-gray-500">
+              This portfolio has no images.
+            </p>
+          </div>
         </template>
 
         <template #footer>
@@ -91,7 +88,7 @@
         @click="changePage(page + 1)"
       />
     </div>
-  </main>
+  </div>
 </template>
 
 <script setup lang="ts">
