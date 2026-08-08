@@ -1,9 +1,11 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from database import DbSession
 
 from middleware.auth import get_current_user
-from services.explore.models import PublicPortfolioPage
-from services.explore.query_functions import get_public_portfolios_qf
+from services.explore.models import PublicPortfolio, PublicPortfolioPage
+from services.explore.query_functions import get_public_portfolio_by_id_qf, get_public_portfolios_qf
 from sqlalchemy import text
 
 router = APIRouter()
@@ -23,4 +25,18 @@ def get_public_portfolios(
         db=db,
         page=page,
         page_size=page_size,
+    )
+
+@router.get(
+    "/portfolios/{portfolio_id}",
+    response_model=PublicPortfolio,
+    status_code=status.HTTP_200_OK,
+)
+def get_public_portfolio_by_id(
+    db: DbSession,
+    portfolio_id: UUID,
+):
+    return get_public_portfolio_by_id_qf(
+        db=db,
+        portfolio_id=portfolio_id,
     )
