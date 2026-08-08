@@ -213,3 +213,19 @@ def get_portfolio_settings_qf(db: DbSession, user_id: UUID):
     )
 
     return res.mappings().one_or_none()
+
+def get_tags_qf(db: DbSession):
+    res = db.execute(
+        text(
+            """
+            --sql
+            SELECT
+                id,
+                name,
+                created_at
+            FROM art.tags;
+            """
+        ),
+    )
+
+    return res.mappings().all()

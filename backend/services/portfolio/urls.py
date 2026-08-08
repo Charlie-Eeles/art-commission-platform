@@ -4,8 +4,8 @@ import uuid
 import boto3
 from botocore.client import Config
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-from services.portfolio.models import PortfolioImage, PortfolioSettings, PortfolioSettingsRequest, UpdatePortfolioImageRequest
-from services.portfolio.query_functions import create_image_qf, delete_image_qf, get_image_by_id_qf, get_portfolio_settings_qf, get_user_images_qf, update_image_qf, save_portfolio_settings_qf
+from services.portfolio.models import PortfolioImage, PortfolioSettings, PortfolioSettingsRequest, PortfolioTag, UpdatePortfolioImageRequest
+from services.portfolio.query_functions import create_image_qf, delete_image_qf, get_image_by_id_qf, get_portfolio_settings_qf, get_tags_qf, get_user_images_qf, update_image_qf, save_portfolio_settings_qf
 
 from database import DbSession
 from middleware.auth import get_current_user
@@ -186,3 +186,10 @@ def get_portfolio_settings(
         )
 
     return settings
+
+@router.get("/all-tags", response_model=list[PortfolioTag])
+def get_all_tags(
+    db: DbSession,
+    _=Depends(get_current_user),
+):
+    return get_tags_qf(db=db)

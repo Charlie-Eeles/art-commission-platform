@@ -51,3 +51,8 @@ class PortfolioSettings(BaseResponseModelWithConfig):
     commission_slots: int
     created_at: datetime
     updated_at: datetime
+
+class PortfolioTag(BaseResponseModelWithConfig):
+    id: uuid.UUID
+    name: str
+    created_at: datetime
