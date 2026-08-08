@@ -53,7 +53,7 @@
         </template>
 
         <template #footer>
-          <NuxtLink :to="`/portfolio/${portfolio.userId}`">
+          <NuxtLink :to="`/portfolio/${portfolio.id}`">
             <Button label="View portfolio">
               <template #icon>
                 <Icon name="material-symbols:arrow-forward" class="size-4" />
@@ -129,12 +129,5 @@ async function changePage(nextPage: number) {
   page.value = nextPage;
   await loadPortfolios();
   window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-function toCarouselImage(image: PortfolioImage) {
-  return {
-    url: image.imageUrl,
-    name: image.artName,
-  };
 }
 </script>

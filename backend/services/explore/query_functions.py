@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import text
 
 from database import DbSession
@@ -56,3 +58,39 @@ def get_public_portfolios_qf(
         "total": total,
         "has_next": offset + len(rows) < total,
     }
+
+def get_public_portfolio_by_id_qf(
+    db: DbSession,
+    portfolio_id: UUID,
+):
+    res = db.execute(
+        text(
+            """
+            --sql
+            SELECT
+                settings.id,
+                settings.user_id,
+                settings.description,
+                settings.commission_slots,
+                settings.created_at,
+                settings.updated_at,
+                COALESCE(
+                    (
+                        SELECT JSONB_AGG(
+                            TO_JSONB(image)
+                            ORDER BY image.created_at DESC
+                        )
+                        FROM art.images AS image
+                        WHERE image.user_id = settings.user_id
+                    ),
+                    '[]'::JSONB
+                ) AS images
+            FROM art.portfolio_settings AS settings
+            WHERE settings.id = :portfolio_id
+              AND settings.is_public = TRUE;
+            """
+        ),
+        {"portfolio_id": portfolio_id},
+    )
+
+    return res.mappings().one_or_none()
