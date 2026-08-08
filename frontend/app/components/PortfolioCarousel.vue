@@ -38,11 +38,6 @@
 </template>
 
 <script setup lang="ts">
-type CarouselImage = {
-  url: string;
-  name: string;
-};
-
 defineProps<{
   images: CarouselImage[];
 }>();

@@ -2,7 +2,7 @@
   <div>
     <NavBar />
 
-    <UContainer class="mt-4">
+    <UContainer class="mb-16">
       <slot />
     </UContainer>
   </div>

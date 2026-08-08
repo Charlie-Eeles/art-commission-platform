@@ -13,5 +13,23 @@ services:
       - acp_pg_data:/var/lib/pg-acp/data
     restart: unless-stopped
 
+  ministack:
+    image: ministackorg/ministack:latest
+    restart: unless-stopped
+    ports:
+      - "4566:4566"
+    environment:
+      PERSIST_STATE: "1"
+      S3_PERSIST: "1"
+      SERVICES: s3
+      MINISTACK_REGION: eu-west-2
+    volumes:
+      - ministack-state:/tmp/ministack-state
+      - ministack-s3-data:/tmp/ministack-data/s3
+      - ./ministack/init.sh:/docker-entrypoint-initaws.d/ready.d/01-init-ministack.sh:ro
+      - ./ministack/seed-images:/seed-images:ro
+
 volumes:
   acp_pg_data:
+  ministack-state:
+  ministack-s3-data:

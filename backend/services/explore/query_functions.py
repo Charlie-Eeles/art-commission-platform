@@ -1,0 +1,58 @@
+from sqlalchemy import text
+
+from database import DbSession
+
+
+def get_public_portfolios_qf(
+    db: DbSession,
+    page: int = 1,
+    page_size: int = 20,
+):
+    offset = (page - 1) * page_size
+
+    res = db.execute(
+        text(
+            """
+            --sql
+            SELECT
+                settings.id,
+                settings.user_id,
+                settings.description,
+                settings.commission_slots,
+                settings.created_at,
+                settings.updated_at,
+                COUNT(*) OVER () AS total_count,
+                COALESCE(
+                    (
+                        SELECT JSONB_AGG(
+                            TO_JSONB(image)
+                            ORDER BY image.created_at DESC
+                        )
+                        FROM art.images AS image
+                        WHERE image.user_id = settings.user_id
+                    ),
+                    '[]'::JSONB
+                ) AS images
+            FROM art.portfolio_settings AS settings
+            WHERE settings.is_public = TRUE
+            ORDER BY settings.updated_at DESC
+            LIMIT :page_size
+            OFFSET :offset;
+            """
+        ),
+        {
+            "page_size": page_size,
+            "offset": offset,
+        },
+    )
+
+    rows = res.mappings().all()
+    total = rows[0]["total_count"] if rows else 0
+
+    return {
+        "items": rows,
+        "page": page,
+        "page_size": page_size,
+        "total": total,
+        "has_next": offset + len(rows) < total,
+    }
