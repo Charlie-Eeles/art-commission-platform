@@ -9,6 +9,7 @@ def get_public_portfolios_qf(
     db: DbSession,
     page: int = 1,
     page_size: int = 20,
+    tags: list[str] | None = None,
 ):
     offset = (page - 1) * page_size
 
@@ -34,9 +35,37 @@ def get_public_portfolios_qf(
                         WHERE image.user_id = settings.user_id
                     ),
                     '[]'::JSONB
-                ) AS images
+                ) AS images,
+                COALESCE(
+                    (
+                        SELECT JSONB_AGG(
+                            JSONB_BUILD_OBJECT(
+                                'id', tag.id,
+                                'name', tag.name,
+                                'created_at', tag.created_at
+                            )
+                            ORDER BY tag.name
+                        )
+                        FROM art.portfolio_tags AS portfolio_tag
+                        JOIN art.tags AS tag
+                            ON tag.id = portfolio_tag.tag_id
+                        WHERE portfolio_tag.portfolio_id = settings.id
+                    ),
+                    '[]'::JSONB
+                ) AS tags
             FROM art.portfolio_settings AS settings
             WHERE settings.is_public = TRUE
+            AND (
+                CAST(:tags AS TEXT[]) IS NULL
+                OR EXISTS (
+                    SELECT 1
+                    FROM art.portfolio_tags AS portfolio_tag
+                    JOIN art.tags AS tag
+                        ON tag.id = portfolio_tag.tag_id
+                    WHERE portfolio_tag.portfolio_id = settings.id
+                        AND tag.name = ANY(CAST(:tags AS TEXT[]))
+                )
+            )
             ORDER BY settings.updated_at DESC
             LIMIT :page_size
             OFFSET :offset;
@@ -45,6 +74,7 @@ def get_public_portfolios_qf(
         {
             "page_size": page_size,
             "offset": offset,
+            "tags": tags or None,
         },
     )
 
@@ -58,6 +88,7 @@ def get_public_portfolios_qf(
         "total": total,
         "has_next": offset + len(rows) < total,
     }
+
 
 def get_public_portfolio_by_id_qf(
     db: DbSession,
@@ -84,10 +115,27 @@ def get_public_portfolio_by_id_qf(
                         WHERE image.user_id = settings.user_id
                     ),
                     '[]'::JSONB
-                ) AS images
+                ) AS images,
+                COALESCE(
+                    (
+                        SELECT JSONB_AGG(
+                            JSONB_BUILD_OBJECT(
+                                'id', tag.id,
+                                'name', tag.name,
+                                'created_at', tag.created_at
+                            )
+                            ORDER BY tag.name
+                        )
+                        FROM art.portfolio_tags AS portfolio_tag
+                        JOIN art.tags AS tag
+                            ON tag.id = portfolio_tag.tag_id
+                        WHERE portfolio_tag.portfolio_id = settings.id
+                    ),
+                    '[]'::JSONB
+                ) AS tags
             FROM art.portfolio_settings AS settings
             WHERE settings.id = :portfolio_id
-              AND settings.is_public = TRUE;
+                AND settings.is_public = TRUE;
             """
         ),
         {"portfolio_id": portfolio_id},

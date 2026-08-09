@@ -1,5 +1,22 @@
 <template>
   <div>
+    <div class="mb-4">
+      <label for="portfolio-tags" class="text-sm font-medium">
+        Filter by tags
+      </label>
+      <MultiSelect
+        v-model="selectedTags"
+        input-id="portfolio-tags"
+        :options="availableTags"
+        option-label="name"
+        option-value="name"
+        display="chip"
+        filter
+        placeholder="Filter by tags"
+        fluid
+      />
+    </div>
+
     <div v-if="loading" class="py-12 text-center">Loading portfolios...</div>
 
     <Card v-else-if="loadError">
@@ -41,6 +58,15 @@
 
         <template #content>
           <div class="min-w-0 overflow-hidden">
+            <div v-if="portfolio.tags.length" class="mb-4 flex flex-wrap gap-2">
+              <Tag
+                v-for="tag in portfolio.tags"
+                :key="tag.id"
+                :value="tag.name"
+                severity="secondary"
+              />
+            </div>
+
             <PortfolioCarousel
               v-if="portfolio.images.length"
               :images="portfolio.images.map(toCarouselImage)"
@@ -64,10 +90,7 @@
       </Card>
     </div>
 
-    <div
-      v-if="totalPages > 1"
-      class="mt-8 flex items-center justify-center gap-4"
-    >
+    <div class="mt-8 flex items-center justify-center gap-4">
       <Button
         label="Previous"
         severity="secondary"
@@ -101,19 +124,38 @@ const total = ref(0);
 const hasNext = ref(false);
 const loading = ref(true);
 const loadError = ref(false);
+const availableTags = ref<PortfolioTagOption[]>([]);
+const selectedTags = ref<PortfolioTagOption[]>([]);
 
 const totalPages = computed(() => Math.ceil(total.value / PAGE_SIZE));
 
-onMounted(loadPortfolios);
+onMounted(() => {
+  loadTags();
+  loadPortfolios();
+});
+
+watch(selectedTags, (newVal, oldVal) => {
+  if (!newVal.length && !oldVal.length) return;
+  loadPortfolios();
+});
+
+async function loadTags() {
+  availableTags.value = (await acpFetch(
+    "/portfolio/all-tags",
+  )) as PortfolioTagOption[];
+  selectedTags.value = [];
+}
 
 async function loadPortfolios() {
   loading.value = true;
   loadError.value = false;
 
   try {
-    const response = (await acpFetch(
-      `/explore/portfolios?page=${page.value}&pageSize=${PAGE_SIZE}`,
-    )) as PublicPortfolioPage;
+    let url = `/explore/portfolios?page=${page.value}&pageSize=${PAGE_SIZE}`;
+    if (selectedTags.value.length)
+      url += `&tags=${selectedTags.value.join(",")}`;
+
+    const response = (await acpFetch(url)) as PublicPortfolioPage;
 
     portfolios.value = response.items ?? [];
     total.value = response.total ?? 0;

@@ -26,6 +26,24 @@
           </div>
 
           <div class="flex flex-col gap-2">
+            <label for="portfolio-tags" class="text-sm font-medium">
+              Tags
+            </label>
+            <MultiSelect
+              v-model="settings.tagIds"
+              input-id="portfolio-tags"
+              :options="availableTags"
+              option-label="name"
+              option-value="id"
+              display="chip"
+              filter
+              placeholder="Select tags"
+              :disabled="settingsLoading"
+              fluid
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
             <label for="commission-slots" class="text-sm font-medium">
               Commission slots
             </label>
@@ -242,11 +260,15 @@ const acpFetch = useAcpFetch();
 const { isAuthenticated } = useLogto();
 
 const images = ref<PortfolioImage[]>([]);
+const availableTags = ref<PortfolioTagOption[]>([]);
+
 const settings = reactive({
   description: "",
   isPublic: false,
   commissionSlots: 3,
+  tagIds: [] as string[],
 });
+
 const settingsLoading = ref(true);
 const settingsSaving = ref(false);
 const newArtName = ref("");
@@ -262,15 +284,19 @@ onMounted(async () => {
   }
 
   try {
-    const [portfolioImages, portfolioSettings] = await Promise.all([
-      acpFetch("/portfolio/images") as Promise<PortfolioImage[]>,
-      acpFetch("/portfolio/settings") as Promise<PortfolioSettings>,
-    ]);
+    const [portfolioImages, portfolioSettings, portfolioTags] =
+      await Promise.all([
+        acpFetch("/portfolio/images") as Promise<PortfolioImage[]>,
+        acpFetch("/portfolio/settings") as Promise<PortfolioSettings>,
+        acpFetch("/portfolio/all-tags") as Promise<PortfolioTagOption[]>,
+      ]);
 
     images.value = portfolioImages ?? [];
+    availableTags.value = portfolioTags ?? [];
     settings.description = portfolioSettings.description;
     settings.isPublic = portfolioSettings.isPublic;
     settings.commissionSlots = portfolioSettings.commissionSlots;
+    settings.tagIds = (portfolioSettings.tags ?? []).map(({ id }) => id);
   } finally {
     settingsLoading.value = false;
   }
@@ -284,11 +310,13 @@ async function saveSettings() {
       description: settings.description,
       isPublic: settings.isPublic,
       commissionSlots: settings.commissionSlots,
+      tagIds: settings.tagIds,
     })) as PortfolioSettings;
 
     settings.description = updated.description;
     settings.isPublic = updated.isPublic;
     settings.commissionSlots = updated.commissionSlots;
+    settings.tagIds = (updated.tags ?? []).map(({ id }) => id);
   } finally {
     settingsSaving.value = false;
   }
