@@ -1,7 +1,12 @@
 import uuid
 from datetime import datetime
 
-from services.portfolio.models import BaseResponseModelWithConfig, PortfolioImage
+from services.portfolio.models import (
+    BaseResponseModelWithConfig,
+    PortfolioImage,
+    PortfolioTag,
+)
+
 
 class PublicPortfolio(BaseResponseModelWithConfig):
     id: uuid.UUID
@@ -11,6 +16,7 @@ class PublicPortfolio(BaseResponseModelWithConfig):
     created_at: datetime
     updated_at: datetime
     images: list[PortfolioImage]
+    tags: list[PortfolioTag]
 
 
 class PublicPortfolioPage(BaseResponseModelWithConfig):

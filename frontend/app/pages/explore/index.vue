@@ -41,6 +41,15 @@
 
         <template #content>
           <div class="min-w-0 overflow-hidden">
+            <div v-if="portfolio.tags.length" class="mb-4 flex flex-wrap gap-2">
+              <Tag
+                v-for="tag in portfolio.tags"
+                :key="tag.id"
+                :value="tag.name"
+                severity="secondary"
+              />
+            </div>
+
             <PortfolioCarousel
               v-if="portfolio.images.length"
               :images="portfolio.images.map(toCarouselImage)"

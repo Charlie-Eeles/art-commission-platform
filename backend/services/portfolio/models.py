@@ -1,4 +1,5 @@
 import uuid
+
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
@@ -41,6 +42,13 @@ class PortfolioSettingsRequest(BaseRequestModelWithConfig):
     description: str
     is_public: bool
     commission_slots: int
+    tag_ids: list[uuid.UUID] | None = None
+
+
+class PortfolioTag(BaseResponseModelWithConfig):
+    id: uuid.UUID
+    name: str
+    created_at: datetime
 
 
 class PortfolioSettings(BaseResponseModelWithConfig):
@@ -49,10 +57,6 @@ class PortfolioSettings(BaseResponseModelWithConfig):
     description: str
     is_public: bool
     commission_slots: int
+    tags: list[PortfolioTag]
     created_at: datetime
     updated_at: datetime
-
-class PortfolioTag(BaseResponseModelWithConfig):
-    id: uuid.UUID
-    name: str
-    created_at: datetime

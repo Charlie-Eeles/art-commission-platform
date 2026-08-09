@@ -4,18 +4,37 @@ import uuid
 import boto3
 from botocore.client import Config
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-from services.portfolio.models import PortfolioImage, PortfolioSettings, PortfolioSettingsRequest, PortfolioTag, UpdatePortfolioImageRequest
-from services.portfolio.query_functions import create_image_qf, delete_image_qf, get_image_by_id_qf, get_portfolio_settings_qf, get_tags_qf, get_user_images_qf, update_image_qf, save_portfolio_settings_qf
 
 from database import DbSession
 from middleware.auth import get_current_user
+from services.portfolio.models import (
+    PortfolioImage,
+    PortfolioSettings,
+    PortfolioSettingsRequest,
+    PortfolioTag,
+    UpdatePortfolioImageRequest,
+)
+from services.portfolio.query_functions import (
+    create_image_qf,
+    delete_image_qf,
+    get_image_by_id_qf,
+    get_portfolio_settings_qf,
+    get_tags_qf,
+    get_user_images_qf,
+    save_portfolio_settings_qf,
+    set_portfolio_tags_qf,
+    update_image_qf,
+)
 
 router = APIRouter()
 
 S3_BUCKET = os.getenv("S3_BUCKET", "portfolio-images")
 S3_ENDPOINT_URL = os.getenv("S3_ENDPOINT_URL", "http://localhost:4566")
 S3_REGION = os.getenv("AWS_DEFAULT_REGION", "eu-west-2")
-S3_PUBLIC_BASE_URL = os.getenv("S3_PUBLIC_BASE_URL", f"{S3_ENDPOINT_URL}/{S3_BUCKET}")
+S3_PUBLIC_BASE_URL = os.getenv(
+    "S3_PUBLIC_BASE_URL",
+    f"{S3_ENDPOINT_URL}/{S3_BUCKET}",
+)
 
 
 def _get_s3_client():
@@ -25,7 +44,10 @@ def _get_s3_client():
         region_name=S3_REGION,
         aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID", "test"),
         aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY", "test"),
-        config=Config(signature_version="s3v4", s3={"addressing_style": "path"}),
+        config=Config(
+            signature_version="s3v4",
+            s3={"addressing_style": "path"},
+        ),
     )
 
 
@@ -92,7 +114,11 @@ def get_image(
     db: DbSession,
     current_user=Depends(get_current_user),
 ):
-    res = get_image_by_id_qf(db=db, image_id=image_id, user_id=current_user.id)
+    res = get_image_by_id_qf(
+        db=db,
+        image_id=image_id,
+        user_id=current_user.id,
+    )
 
     if res is None:
         raise HTTPException(
@@ -110,7 +136,12 @@ def update_image(
     db: DbSession,
     current_user=Depends(get_current_user),
 ):
-    res = update_image_qf(db=db, image_id=image_id, user_id=current_user.id, art_name=payload.art_name)
+    res = update_image_qf(
+        db=db,
+        image_id=image_id,
+        user_id=current_user.id,
+        art_name=payload.art_name,
+    )
 
     if res is None:
         raise HTTPException(
@@ -123,13 +154,20 @@ def update_image(
     return res
 
 
-@router.delete("/images/{image_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/images/{image_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 def delete_image(
     image_id: uuid.UUID,
     db: DbSession,
     current_user=Depends(get_current_user),
 ):
-    res = delete_image_qf(db=db, image_id=image_id, user_id=current_user.id)
+    res = delete_image_qf(
+        db=db,
+        image_id=image_id,
+        user_id=current_user.id,
+    )
 
     if res is None:
         raise HTTPException(
@@ -152,40 +190,70 @@ def delete_image(
 
     return None
 
+
 @router.put("/settings", response_model=PortfolioSettings)
 def save_portfolio_settings(
     payload: PortfolioSettingsRequest,
     db: DbSession,
     current_user=Depends(get_current_user),
 ):
-    res = save_portfolio_settings_qf(
+    settings = save_portfolio_settings_qf(
         db=db,
         user_id=current_user.id,
         description=payload.description,
         is_public=payload.is_public,
-        commission_slots=payload.commission_slots
+        commission_slots=payload.commission_slots,
     )
+
+    if payload.tag_ids is not None:
+        try:
+            set_portfolio_tags_qf(
+                db=db,
+                portfolio_id=settings["id"],
+                tag_ids=payload.tag_ids,
+            )
+        except ValueError as exc:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(exc),
+            ) from exc
+
     db.commit()
 
-    return res
+    return get_portfolio_settings_qf(
+        db=db,
+        user_id=current_user.id,
+    )
+
 
 @router.get("/settings", response_model=PortfolioSettings)
 def get_portfolio_settings(
     db: DbSession,
     current_user=Depends(get_current_user),
 ):
-    settings = get_portfolio_settings_qf(db=db, user_id=current_user.id)
+    settings = get_portfolio_settings_qf(
+        db=db,
+        user_id=current_user.id,
+    )
 
     if settings is None:
-        settings = save_portfolio_settings_qf(
+        save_portfolio_settings_qf(
             db=db,
             user_id=current_user.id,
             description="",
             is_public=False,
-            commission_slots=3
+            commission_slots=3,
+        )
+        db.commit()
+
+        settings = get_portfolio_settings_qf(
+            db=db,
+            user_id=current_user.id,
         )
 
     return settings
+
 
 @router.get("/all-tags", response_model=list[PortfolioTag])
 def get_all_tags(

@@ -16,6 +16,7 @@ export type PublicPortfolio = {
   createdAt: string;
   updatedAt: string;
   images: PortfolioImage[];
+  tags: PortfolioTagOption[];
 };
 
 export type PublicPortfolioPage = {
@@ -37,6 +38,7 @@ export type PortfolioSettings = {
   description: string;
   isPublic: boolean;
   commissionSlots: number;
+  tags: PortfolioTagOption[];
   createdAt: string;
   updatedAt: string;
 };
@@ -47,4 +49,10 @@ export type MenuItem = {
   icon?: string;
   items?: MenuItem[];
   command?: () => void;
+};
+
+export type PortfolioTagOption = {
+  id: string;
+  name: string;
+  createdAt: string;
 };
