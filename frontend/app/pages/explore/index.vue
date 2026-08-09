@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="availableTags.length" class="mb-4">
+    <div class="mb-4">
       <label for="portfolio-tags" class="text-sm font-medium">
         Filter by tags
       </label>
@@ -134,7 +134,8 @@ onMounted(() => {
   loadPortfolios();
 });
 
-watch(selectedTags, (_) => {
+watch(selectedTags, (newVal, oldVal) => {
+  if (!newVal.length && !oldVal.length) return;
   loadPortfolios();
 });
 
