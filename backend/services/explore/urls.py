@@ -5,7 +5,7 @@ from database import DbSession
 
 from middleware.auth import get_current_user
 from services.explore.models import PublicPortfolio, PublicPortfolioPage
-from services.explore.query_functions import get_public_portfolio_by_id_qf, get_public_portfolios_qf
+from services.explore.query_functions import create_request_qf, get_public_portfolio_by_id_qf, get_public_portfolios_qf
 from sqlalchemy import text
 
 
@@ -50,3 +50,27 @@ def get_public_portfolio_by_id(
         db=db,
         portfolio_id=portfolio_id,
     )
+
+@router.post(
+    "/portfolios/{portfolio_id}/requests",
+    status_code=status.HTTP_201_CREATED,
+)
+def create_request(
+    db: DbSession,
+    portfolio_id: UUID,
+    user=Depends(get_current_user),
+):
+    try:
+        request = create_request_qf(
+            db=db,
+            requester_id=user.id,
+            portfolio_id=portfolio_id,
+        )
+        db.commit()
+        return request
+    except ValueError as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc

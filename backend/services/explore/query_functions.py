@@ -142,3 +142,58 @@ def get_public_portfolio_by_id_qf(
     )
 
     return res.mappings().one_or_none()
+
+def create_request_qf(
+    db: DbSession,
+    requester_id: UUID,
+    portfolio_id: UUID,
+):
+    res = db.execute(
+        text(
+            """
+            WITH portfolio AS (
+                SELECT
+                    settings.id,
+                    settings.commission_slots
+                FROM art.portfolio_settings AS settings
+                WHERE settings.id = :portfolio_id
+                FOR UPDATE
+            ),
+            availability AS (
+                SELECT portfolio.id
+                FROM portfolio
+                WHERE (
+                    SELECT COUNT(*)
+                    FROM art.requests AS request
+                    WHERE request.portfolio_id = portfolio.id
+                      AND request.status IN ('pending', 'in_progress')
+                ) < portfolio.commission_slots
+            )
+            INSERT INTO art.requests (
+                requester_id,
+                portfolio_id
+            )
+            SELECT
+                :requester_id,
+                availability.id
+            FROM availability
+            RETURNING
+                id,
+                requester_id,
+                portfolio_id,
+                status,
+                created_at;
+            """
+        ),
+        {
+            "requester_id": requester_id,
+            "portfolio_id": portfolio_id,
+        },
+    )
+
+    request = res.mappings().one_or_none()
+
+    if request is None:
+        raise ValueError("Portfolio not found or no commission slots available")
+
+    return request
