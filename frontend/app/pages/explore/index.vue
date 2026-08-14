@@ -53,6 +53,7 @@
         </template>
 
         <template #subtitle>
+          {{ portfolio.openCommissionSlots }} of
           {{ portfolio.commissionSlots }} commission slots available
         </template>
 

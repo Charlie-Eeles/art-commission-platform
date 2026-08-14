@@ -17,6 +17,7 @@
         </template>
 
         <template #subtitle>
+          {{ portfolio.openCommissionSlots }} of
           {{ portfolio.commissionSlots }} commission slots available
         </template>
 
@@ -39,9 +40,13 @@
         <template #footer>
           <div class="flex flex-col items-start gap-3">
             <Button
-              label="Request commission"
+              :label="
+                portfolio.openCommissionSlots
+                  ? 'Request commission'
+                  : 'No commission slots remaining'
+              "
               :loading="isSubmitting"
-              :disabled="isSubmitted"
+              :disabled="isSubmitted || !portfolio.openCommissionSlots"
               @click="submitRequest"
             >
               <template #icon>

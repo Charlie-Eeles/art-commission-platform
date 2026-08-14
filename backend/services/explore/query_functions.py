@@ -22,6 +22,15 @@ def get_public_portfolios_qf(
                 settings.user_id,
                 settings.description,
                 settings.commission_slots,
+                GREATEST(
+                    settings.commission_slots - (
+                        SELECT COUNT(*)
+                        FROM art.requests AS request
+                        WHERE request.portfolio_id = settings.id
+                            AND request.status IN ('pending', 'in_progress')
+                    ),
+                    0
+                ) AS open_commission_slots,
                 settings.created_at,
                 settings.updated_at,
                 COUNT(*) OVER () AS total_count,
@@ -55,17 +64,17 @@ def get_public_portfolios_qf(
                 ) AS tags
             FROM art.portfolio_settings AS settings
             WHERE settings.is_public = TRUE
-            AND (
-                CAST(:tags AS TEXT[]) IS NULL
-                OR EXISTS (
-                    SELECT 1
-                    FROM art.portfolio_tags AS portfolio_tag
-                    JOIN art.tags AS tag
-                        ON tag.id = portfolio_tag.tag_id
-                    WHERE portfolio_tag.portfolio_id = settings.id
-                        AND tag.name = ANY(CAST(:tags AS TEXT[]))
+                AND (
+                    CAST(:tags AS TEXT[]) IS NULL
+                    OR EXISTS (
+                        SELECT 1
+                        FROM art.portfolio_tags AS portfolio_tag
+                        JOIN art.tags AS tag
+                            ON tag.id = portfolio_tag.tag_id
+                        WHERE portfolio_tag.portfolio_id = settings.id
+                            AND tag.name = ANY(CAST(:tags AS TEXT[]))
+                    )
                 )
-            )
             ORDER BY settings.updated_at DESC
             LIMIT :page_size
             OFFSET :offset;
@@ -103,6 +112,15 @@ def get_public_portfolio_by_id_qf(
                 settings.user_id,
                 settings.description,
                 settings.commission_slots,
+                GREATEST(
+                    settings.commission_slots - (
+                        SELECT COUNT(*)
+                        FROM art.requests AS request
+                        WHERE request.portfolio_id = settings.id
+                            AND request.status IN ('pending', 'in_progress')
+                    ),
+                    0
+                ) AS open_commission_slots,
                 settings.created_at,
                 settings.updated_at,
                 COALESCE(
@@ -143,6 +161,7 @@ def get_public_portfolio_by_id_qf(
 
     return res.mappings().one_or_none()
 
+
 def create_request_qf(
     db: DbSession,
     requester_id: UUID,
@@ -151,6 +170,7 @@ def create_request_qf(
     res = db.execute(
         text(
             """
+            --sql
             WITH portfolio AS (
                 SELECT
                     settings.id,
@@ -166,7 +186,7 @@ def create_request_qf(
                     SELECT COUNT(*)
                     FROM art.requests AS request
                     WHERE request.portfolio_id = portfolio.id
-                      AND request.status IN ('pending', 'in_progress')
+                        AND request.status IN ('pending', 'in_progress')
                 ) < portfolio.commission_slots
             )
             INSERT INTO art.requests (
