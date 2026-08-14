@@ -13,6 +13,7 @@ class PublicPortfolio(BaseResponseModelWithConfig):
     user_id: uuid.UUID
     description: str
     commission_slots: int
+    open_commission_slots: int
     created_at: datetime
     updated_at: datetime
     images: list[PortfolioImage]

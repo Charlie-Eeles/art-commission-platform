@@ -13,6 +13,7 @@ export type PublicPortfolio = {
   userId: string;
   description: string;
   commissionSlots: number;
+  openCommissionSlots: number;
   createdAt: string;
   updatedAt: string;
   images: PortfolioImage[];

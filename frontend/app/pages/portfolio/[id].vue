@@ -17,6 +17,7 @@
         </template>
 
         <template #subtitle>
+          {{ portfolio.openCommissionSlots }} of
           {{ portfolio.commissionSlots }} commission slots available
         </template>
 
@@ -35,6 +36,33 @@
             <p class="text-gray-500">This portfolio has no images.</p>
           </div>
         </template>
+
+        <template #footer>
+          <div class="flex flex-col items-start gap-3">
+            <Button
+              :label="
+                portfolio.openCommissionSlots
+                  ? 'Request commission'
+                  : 'No commission slots remaining'
+              "
+              :loading="isSubmitting"
+              :disabled="isSubmitted || !portfolio.openCommissionSlots"
+              @click="submitRequest"
+            >
+              <template #icon>
+                <Icon name="material-symbols:send-outline" class="size-4" />
+              </template>
+            </Button>
+
+            <p v-if="isSubmitted" class="text-sm text-green-600">
+              Your commission request has been submitted.
+            </p>
+
+            <p v-else-if="requestError" class="text-sm text-red-600">
+              {{ requestError }}
+            </p>
+          </div>
+        </template>
       </Card>
     </template>
   </div>
@@ -44,6 +72,10 @@
 const route = useRoute();
 const acpFetch = useAcpFetch();
 
+const isSubmitting = ref(false);
+const isSubmitted = ref(false);
+const requestError = ref<string | null>(null);
+
 const portfolio = (await acpFetch(
   `/explore/portfolios/${route.params.id}`,
 )) as PublicPortfolio;
@@ -51,4 +83,29 @@ const portfolio = (await acpFetch(
 const portfolioImages = computed(() =>
   Array.isArray(portfolio?.images) ? portfolio.images : [],
 );
+
+async function submitRequest() {
+  isSubmitting.value = true;
+  requestError.value = null;
+
+  try {
+    await acpFetch(
+      `/explore/portfolios/${route.params.id}/requests`,
+      HTTPMethods.POST,
+    );
+
+    isSubmitted.value = true;
+  } catch (error: unknown) {
+    const fetchError = error as {
+      data?: {
+        detail?: string;
+      };
+    };
+
+    requestError.value =
+      fetchError.data?.detail ?? "Unable to submit the commission request.";
+  } finally {
+    isSubmitting.value = false;
+  }
+}
 </script>
