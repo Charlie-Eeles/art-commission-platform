@@ -15,6 +15,7 @@ def create_app() -> FastAPI:
         CORSMiddleware,
         allow_origins=[
             "http://localhost:3000",
+            "https://art-commission-platform.co.uk",
         ],
         allow_credentials=True,
         allow_methods=["*"],
