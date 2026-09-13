@@ -9,7 +9,7 @@ RESTART IDENTITY;
 
 INSERT INTO accounts.users (id, email, auth_sub)
 VALUES
-    ('00000000-0000-0000-0000-000000000001', 'mickey.mouse@art-commission-platform.co.uk', 'seed|mickey-mouse'),
+    ('00000000-0000-0000-0000-000000000001', 'mickey.mouse@art-commission-platform.co.uk', 'nkusafcop3y3'),
     ('00000000-0000-0000-0000-000000000002', 'minnie.mouse@art-commission-platform.co.uk', 'seed|minnie-mouse'),
     ('00000000-0000-0000-0000-000000000003', 'donald.duck@art-commission-platform.co.uk', 'seed|donald-duck'),
     ('00000000-0000-0000-0000-000000000004', 'daisy.duck@art-commission-platform.co.uk', 'seed|daisy-duck'),
