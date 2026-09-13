@@ -54,7 +54,7 @@ SELECT
     portfolios.id
 FROM (
     VALUES
-        ('seed|mickey-mouse', 'Painting'),
+        ('nkusafcop3y3', 'Painting'),
         ('seed|mickey-mouse', 'Portrait'),
         ('seed|minnie-mouse', 'Illustration'),
         ('seed|minnie-mouse', 'Portrait'),
