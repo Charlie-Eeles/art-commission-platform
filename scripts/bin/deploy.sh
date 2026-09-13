@@ -43,7 +43,7 @@ ssh -i "$key" "$host" "
         --remove-orphans
 
     cd '$remote/backend'
-    dbmate migrate
+    dbmate --wait migrate
 
     echo 'Deployment and migrations completed successfully.'
 "
