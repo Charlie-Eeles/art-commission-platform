@@ -2,52 +2,52 @@ INSERT INTO accounts.users (id, email, auth_sub)
 VALUES
     (
         '00000000-0000-0000-0000-000000000001',
-        'mickey.mouse@art-commission-platform.com',
+        'mickey.mouse@art-commission-platform.co.uk',
         'seed|mickey-mouse'
     ),
     (
         '00000000-0000-0000-0000-000000000002',
-        'minnie.mouse@art-commission-platform.com',
+        'minnie.mouse@art-commission-platform.co.uk',
         'seed|minnie-mouse'
     ),
     (
         '00000000-0000-0000-0000-000000000003',
-        'donald.duck@art-commission-platform.com',
+        'donald.duck@art-commission-platform.co.uk',
         'seed|donald-duck'
     ),
     (
         '00000000-0000-0000-0000-000000000004',
-        'daisy.duck@art-commission-platform.com',
+        'daisy.duck@art-commission-platform.co.uk',
         'seed|daisy-duck'
     ),
     (
         '00000000-0000-0000-0000-000000000005',
-        'goofy@art-commission-platform.com',
+        'goofy@art-commission-platform.co.uk',
         'seed|goofy'
     ),
     (
         '00000000-0000-0000-0000-000000000006',
-        'pluto@art-commission-platform.com',
+        'pluto@art-commission-platform.co.uk',
         'seed|pluto'
     ),
     (
         '00000000-0000-0000-0000-000000000007',
-        'cinderella@art-commission-platform.com',
+        'cinderella@art-commission-platform.co.uk',
         'seed|cinderella'
     ),
     (
         '00000000-0000-0000-0000-000000000008',
-        'snow.white@art-commission-platform.com',
+        'snow.white@art-commission-platform.co.uk',
         'seed|snow-white'
     ),
     (
         '00000000-0000-0000-0000-000000000009',
-        'peter.pan@art-commission-platform.com',
+        'peter.pan@art-commission-platform.co.uk',
         'seed|peter-pan'
     ),
     (
         '00000000-0000-0000-0000-000000000010',
-        'winnie.the.pooh@art-commission-platform.com',
+        'winnie.the.pooh@art-commission-platform.co.uk',
         'seed|winnie-the-pooh'
     );
 
