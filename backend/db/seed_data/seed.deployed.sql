@@ -88,7 +88,7 @@ INSERT INTO art.images (
 SELECT
     md5('image-' || users.id::text || artwork.art_name)::uuid,
     artwork.art_name,
-    's3://portfolio-images-458063641986-eu-west-2-an/seed-images/' || artwork.slug || '.png',
+    'https://portfolio-images-458063641986-eu-west-2-an.s3.eu-west-2.amazonaws.com/seed-images/' || artwork.slug || '.png',
     md5('upload-' || users.id::text || artwork.art_name)::uuid,
     users.id
 FROM accounts.users AS users
