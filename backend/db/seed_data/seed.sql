@@ -1,3 +1,9 @@
+TRUNCATE TABLE
+    art.images,
+    art.portfolio_settings,
+    accounts.users
+RESTART IDENTITY;
+
 INSERT INTO accounts.users (id, email, auth_sub)
 VALUES
     (
@@ -78,7 +84,7 @@ INSERT INTO
 SELECT
     md5('image-' || users.id::text || artwork.art_name)::uuid,
     artwork.art_name,
-    'http://localhost:4566/portfolio-images/' || artwork.slug || '.png',
+    's3://portfolio-images-458063641986-eu-west-2-an/seed-images/' || artwork.slug || '.png',
     md5('upload-' || users.id::text || artwork.art_name)::uuid,
     users.id
 FROM
