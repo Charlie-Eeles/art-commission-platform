@@ -23,6 +23,20 @@ services:
       - caddy_data:/data
       - caddy_config:/config
 
+  acp-db:
+    image: ghcr.io/starflower-sh/sage-postgres:18
+    env_file:
+      - .env
+    environment:
+      PGDATA: /var/lib/pg-acp/data
+    ports:
+      - "5432:5432"
+    volumes:
+      - acp_pg_data:/var/lib/pg-acp/data
+    restart: unless-stopped
+
+
 volumes:
   caddy_data:
   caddy_config:
+  acp_pg_data:
