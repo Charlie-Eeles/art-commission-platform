@@ -58,32 +58,24 @@ JOIN accounts.users AS users ON users.id = portfolios.user_id
 CROSS JOIN art.tags AS tags
 WHERE users.auth_sub LIKE 'seed|%';
 
-
-INSERT INTO
-    art.images (
-        id,
-        art_name,
-        image_url,
-        upload_id,
-        user_id
-    )
+INSERT INTO art.images (
+    id,
+    art_name,
+    image_url,
+    upload_id,
+    user_id
+)
 SELECT
     md5('image-' || users.id::text || artwork.art_name)::uuid,
     artwork.art_name,
-    'http://localhost:4566/portfolio-images/' || artwork.slug || '.png',
+    's3://portfolio-images-458063641986-eu-west-2-an/seed-images/' || artwork.slug || '.png',
     md5('upload-' || users.id::text || artwork.art_name)::uuid,
     users.id
-FROM
-    accounts.users AS users
-CROSS JOIN
-    (
-        VALUES
-            ('The Starry Night', 'the-starry-night'),
-            ('Mona Lisa', 'mona-lisa'),
-            (
-                'The Great Wave off Kanagawa',
-                'the-great-wave-off-kanagawa'
-            )
-    ) AS artwork(art_name, slug)
-WHERE
-    users.auth_sub LIKE 'seed|%';
+FROM accounts.users AS users
+CROSS JOIN (
+    VALUES
+        ('The Starry Night', 'the-starry-night'),
+        ('Mona Lisa', 'mona-lisa'),
+        ('The Great Wave off Kanagawa', 'the-great-wave-off-kanagawa')
+) AS artwork(art_name, slug)
+WHERE users.auth_sub LIKE 'seed|%';
