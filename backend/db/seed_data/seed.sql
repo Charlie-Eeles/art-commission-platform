@@ -51,12 +51,33 @@ FROM (
 
 INSERT INTO art.portfolio_tags (tag_id, portfolio_id)
 SELECT
-    tags.id,
+    md5('tag-' || assignments.tag_name)::uuid,
     portfolios.id
-FROM art.portfolio_settings AS portfolios
-JOIN accounts.users AS users ON users.id = portfolios.user_id
-CROSS JOIN art.tags AS tags
-WHERE users.auth_sub LIKE 'seed|%';
+FROM (
+    VALUES
+        ('seed|mickey-mouse', 'Painting'),
+        ('seed|mickey-mouse', 'Portrait'),
+        ('seed|minnie-mouse', 'Illustration'),
+        ('seed|minnie-mouse', 'Portrait'),
+        ('seed|donald-duck', 'Landscape'),
+        ('seed|donald-duck', 'Painting'),
+        ('seed|daisy-duck', 'Printmaking'),
+        ('seed|daisy-duck', 'Illustration'),
+        ('seed|goofy', 'Illustration'),
+        ('seed|goofy', 'Landscape'),
+        ('seed|pluto', 'Painting'),
+        ('seed|pluto', 'Printmaking'),
+        ('seed|cinderella', 'Portrait'),
+        ('seed|cinderella', 'Painting'),
+        ('seed|snow-white', 'Portrait'),
+        ('seed|snow-white', 'Illustration'),
+        ('seed|peter-pan', 'Landscape'),
+        ('seed|peter-pan', 'Printmaking'),
+        ('seed|winnie-the-pooh', 'Illustration'),
+        ('seed|winnie-the-pooh', 'Painting')
+) AS assignments(auth_sub, tag_name)
+JOIN accounts.users AS users ON users.auth_sub = assignments.auth_sub
+JOIN art.portfolio_settings AS portfolios ON portfolios.user_id = users.id;
 
 
 INSERT INTO
