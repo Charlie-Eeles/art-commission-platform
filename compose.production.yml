@@ -26,7 +26,7 @@ services:
   acp-db:
     image: ghcr.io/starflower-sh/sage-postgres:18
     env_file:
-      - .env
+      - ./backend/.env
     environment:
       PGDATA: /var/lib/pg-acp/data
     ports:
