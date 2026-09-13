@@ -40,7 +40,12 @@ POSTGRES_HOST=localhost
 DATABASE_URL="postgresql://local:password@localhost:5432/art_commission_platform?sslmode=disable"
 
 # AWS
-ORGANISATION_IMAGES_BUCKET=portfolio-images
+S3_BUCKET=portfolio-images
+S3_ENDPOINT_URL=http://localhost:4566
+S3_PUBLIC_BASE_URL=http://localhost:4566/portfolio-images
+AWS_DEFAULT_REGION=eu-west-2
+AWS_ACCESS_KEY_ID=test
+AWS_SECRET_ACCESS_KEY=test
 
 # LogTo
 LOGTO_ENDPOINT=https://bph6vd.logto.app
